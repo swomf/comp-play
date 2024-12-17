@@ -6,6 +6,11 @@
 #include <vector>
 using namespace std;
 
+// greatest to least via second element (idx 1) of tuple
+auto cmp = [](const tuple<int, int> &a, const tuple<int, int> &b) {
+  return get<1>(b) < get<1>(a);
+};
+
 int main() {
   vector<tuple<int, int>> rules;
   string line;
@@ -20,32 +25,42 @@ int main() {
   long long int middles = 0;
   // sec2
   while (getline(cin, line)) {
-    vector<int> v;
+    vector<tuple<int, int>> v;
     istringstream iss(line);
     for (int i; iss >> i;) {
-      v.push_back(i);
+      v.push_back(make_tuple(i, 0));
       cout << i << ' ';
       if (iss.peek() == ',')
         iss.ignore();
     }
-    cout << " is ";
-    for (int i = 0; i < v.size() - 1; i++) {
-      int iv = v[i];
-      for (int j = i + 1; j < v.size(); j++) {
-        int jv = v[j];
+    for (int i = 0; i < v.size(); i++) {
+      int iv = get<0>(v[i]);
+      for (int j = 0; j < v.size(); j++) {
+        if (i == j)
+          continue;
+        int jv = get<0>(v[j]);
         for (const auto &tup : rules) {
           int in = get<0>(tup), out = get<1>(tup);
-          if (in == jv && out == iv) {
-            cout << "bad!\n";
-            goto bad;
+          if (in == iv && out == jv) {
+            get<1>(v[i])++; // count amount of befores
           }
         }
       }
     }
-    cout << "good!\n";
-    middles += v[v.size() / 2]; // odd middle
-  bad:
-    int x;
+    for (int i = 0; i < v.size() - 1; i++) {
+      if (get<1>(v[i]) > get<1>(v[i + 1])) {
+        // n-1 befores, decreases further as you go along, iff correct order
+
+      } else {
+        // wrong order lol. this is what we need for part 2
+        goto pass;
+      }
+    }
+    continue; // to get to this line, you are in the correct order.
+    // middles += get<0>(v[v.size() / 2]);
+  pass:
+    sort(v.begin(), v.end(), cmp);
+    middles += get<0>(v[v.size() / 2]);
   }
   cout << middles;
   return 0;
