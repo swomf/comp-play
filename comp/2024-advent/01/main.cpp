@@ -14,14 +14,13 @@ int main() {
     l1.push_back(a);
     l2.push_back(b);
   }
-  sort(l1.begin(), l1.end());
-  sort(l2.begin(), l2.end());
-  lli dist = 0;
-  for (int i = 0; i < l1.size(); i++) {
-    int add = abs(l1[i] - l2[i]);
-    cout << l1[i] << " - " << l2[i] << " = " << add << endl;
-    dist += add;
+  lli sim = 0;
+  for (int i : l1) {
+    for (int j : l2) {
+      if (i == j)
+        sim += i;
+    }
   }
-  cout << dist << endl;
+  cout << sim << endl;
   return 0;
 }
