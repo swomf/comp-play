@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+echo editing input"$1" to input"$1"_transformed
+if ! test -n "$1"; then
+  echo "input number missing"
+  exit 1
+fi
+cat input"$1" | grep -Eo "mul\([0-9]+,[0-9]+\)" >input"$1"_transformed
