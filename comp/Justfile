@@ -26,3 +26,14 @@ new language directory-name:
 [no-cd]
 test num='':
   TEST_INPUT=input{{num}} make test
+
+# Copy last commit message
+copy-last-commit:
+  #!/usr/bin/env bash
+  if git diff --quiet --cached; then
+    echo "==> No staged changes. Quit."
+    exit 1
+  fi
+  echo "==> Copying last commit message for editing."
+  git commit -m "$(git log -1 --pretty=%B | head -1)"
+  git commit --amend
