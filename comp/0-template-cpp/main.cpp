@@ -5,4 +5,7 @@
 #include <vector>
 using namespace std;
 
-int main() { return 0; }
+int main() {
+  int n;
+  return 0;
+}
