@@ -26,6 +26,8 @@ int existence(vector<string> *grid, int i, int j, int i_walk, int j_walk,
                    print);
 }
 
+char letter(vector<string> *grid, int i, int j) { return (*grid)[i][j]; }
+
 int main() {
   vector<string> grid;
   string line;
@@ -36,20 +38,15 @@ int main() {
 
   for (int i = 0; i < grid.size(); i++) {
     for (int j = 0; j < grid[0].length(); j++) {
-      for (int i_walk = -1; i_walk <= 1; i_walk++) {
-        for (int j_walk = -1; j_walk <= 1; j_walk++) {
-          if (i_walk == 0 && j_walk == 0)
-            continue;
-          int found = existence(&grid, i, j, i_walk, j_walk, 1, 0);
-          if (found) {
-            cout << "Found at " << i << ' ' << j << " with step " << i_walk
-                 << " " << j_walk;
-            existence(&grid, i, j, i_walk, j_walk, 1, 1);
-            cout << endl;
-          }
-          total += found;
-        }
-      }
+      if (i == 0 || j == 0 || i == grid.size() - 1 || j == grid[0].length() - 1)
+        continue; // edges
+      if (letter(&grid, i, j) != 'A')
+        continue;
+      char nw = letter(&grid, i - 1, j - 1), ne = letter(&grid, i - 1, j + 1),
+           sw = letter(&grid, i + 1, j - 1), se = letter(&grid, i + 1, j + 1);
+      int neg_slope = (nw == 'M' && se == 'S') || (nw == 'S' && se == 'M');
+      int pos_slope = (sw == 'M' && ne == 'S') || (sw == 'S' && ne == 'M');
+      total += (neg_slope && pos_slope);
     }
   }
   cout << total << endl;
