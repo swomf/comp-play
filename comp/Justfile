@@ -1,0 +1,28 @@
+#!/usr/bin/env just --justfile
+
+help:
+  @echo Available languages: `ls | grep 0-template | sed "s/0-template-//g"`
+  @echo Run \`just new [lang] [dirname]\`
+
+# Initialize a new project
+new language directory-name:
+  #!/usr/bin/env bash
+  echo '==> Using language {{language}}.'
+  tmpl=`realpath 0-template-{{language}}`
+  if [[ ! -d "$tmpl" ]]; then
+    echo '[!] No template available. Quitting.'
+    exit 1
+  fi
+  cd {{ invocation_directory_native() }}
+  mkdir -p {{directory-name}}
+  cd {{directory-name}}
+  cp -i "$tmpl/main.{{language}}" .
+  if [[ -f "$tmpl/Makefile" ]]; then
+    ln -s `realpath --relative-to=. $tmpl/Makefile` "Makefile" 
+  fi
+  echo '==> Initialized {{language}} project at' `realpath .`
+
+# Run test using file inputX
+[no-cd]
+test num='':
+  TEST_INPUT=input{{num}} make test
