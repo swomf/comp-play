@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdio>
+#include <cstring>
 #include <iostream>
 #include <memory>
 #include <sstream>
@@ -8,10 +9,66 @@
 using namespace std;
 #define lli long long int
 
-enum OPERATION { NONE, ADD, MULT };
+class Operation {
+public:
+  // 1 is add, 2 is multiply, 3 is concat
+  vector<int> operations;
+  Operation(int amount_of_numbers) {
+    for (amount_of_numbers--; amount_of_numbers--; operations.push_back(1))
+      ;
+  }
+  // run ops
+  lli operate(vector<lli> *vec) {
+    /*for (auto i : *vec)
+      cout << i << ' ';
+    cout << endl;
+    for (auto i : operations)
+      cout << ' ' << i;
+    cout << endl;
+*/
+    lli sum = (*vec)[0];
+    for (int i = 0; i < operations.size(); i++) {
+      switch (operations[i]) {
+      case 1: // add
+        sum += (*vec)[i + 1];
+        break;
+      case 2: // multiply
+        sum *= (*vec)[i + 1];
+        break;
+      case 3: // concat
+        size_t second_size = to_string((*vec)[i + 1]).length();
+        sum = sum * pow(10, second_size) + (*vec)[i + 1];
+        break;
+      }
+    }
+    return sum;
+  }
+  // increment self, as if we're counting upwards in ternary
+  // returns false if cannot increment anymore
+  bool increment() {
+    bool is_last = false;
+    for (int op : operations) {
+      if (op != 3) {
+        is_last = true;
+      }
+    }
+    if (!is_last)
+      return false;
+
+    for (int i = operations.size() - 1; ++operations[i];) {
+      if (operations[i] == 4) {
+        operations[i] = 1;
+        i--;
+      } else
+        break;
+    }
+
+    return true;
+  }
+};
 
 int main() {
-  lli sum = 0;
+  lli total = 0;
 
   for (string line; getline(cin, line);) {
     istringstream iss(line);
@@ -24,53 +81,16 @@ int main() {
     for (lli atom; iss >> atom; atoms.push_back(atom)) {
     };
 
-    // left to right
-    // 0 = add
-    // 1 = multiply
-    // [1, (n zeroes)] where n is the amount of edges between numbers.
-    printf("line: %b\t\t wants %lld \n", 1 << (atoms.size() - 1), test);
-    for (lli i = 0b0; i < (1 << (atoms.size() - 1)); i++) {
-      vector<lli> test_atoms = atoms;
-      vector<OPERATION> operations;
-      for (lli j = 1; j ^ (1 << (atoms.size() - 1)); j <<= 1) {
-        operations.push_back(j & i ? MULT : ADD);
-      }
-      for (lli a : test_atoms) {
-        printf("%lld ", a);
-      }
-      cout << endl;
-      for (lli op : operations) {
-        printf(" %lld", op);
-      }
-      cout << endl;
-
-      for (lli i = 0; i < operations.size(); i++) {
-        if (operations[i] == MULT) {
-          test_atoms[i] = test_atoms[i] * test_atoms[i + 1];
-          test_atoms.erase(test_atoms.begin() + i + 1);
-          operations.erase(operations.begin() + i);
-          i--;
-
-        } else if (operations[i] == ADD) {
-          test_atoms[i] = test_atoms[i] + test_atoms[i + 1];
-          test_atoms.erase(test_atoms.begin() + i + 1);
-          operations.erase(operations.begin() + i);
-          i--;
-
-        } else {
-          perror("what?\n");
-          return 1;
-        }
-      }
-      cout << "sum : " << test_atoms[0] << endl;
-      if (test_atoms[0] == test) {
-        printf("YAAAAAAAAAAY %lld\n", test_atoms[0]);
-        sum += test_atoms[0];
+    Operation op = Operation(atoms.size());
+    do {
+      lli s = op.operate(&atoms);
+      if (s == test) {
+        // printf("WOOOOOOOOOOOOOW: %lld\n", s);
+        total += s;
         break;
       }
-    }
-    printf("\n");
+    } while (op.increment());
   }
-  printf("%lld\n", sum);
+  cout << total << endl;
   return 0;
 }
